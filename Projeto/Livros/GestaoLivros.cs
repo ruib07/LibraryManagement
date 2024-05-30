@@ -1,123 +1,187 @@
 ﻿using Projeto.Listas;
+using System;
 
-namespace Projeto.Livros;
-
-public class GestaoLivros
+namespace Projeto.Livros
 {
-    #region Private Properties
-
-    private ListasLivrosUsers _listas;
-
-    #endregion
-
-    #region Constructors
-
-    public GestaoLivros(ListasLivrosUsers listas)
+    public class GestaoLivros
     {
-        _listas = listas;
-    }
+        #region Private Properties
 
-    #endregion
+        private readonly ListasLivrosUsers _listas;
 
-    #region Public Methods
+        #endregion
 
-    public void CriarLivro()
-    {
-        LivrosData novolivro = new LivrosData();
+        #region Constructors
 
-        while (novolivro.Cod != "0")
+        public GestaoLivros(ListasLivrosUsers listas) => _listas = listas;
+
+        #endregion
+
+        #region Public Methods
+
+        public void CriarLivro()
         {
-            Console.WriteLine("Código: ");
-            novolivro.Cod = Convert.ToString(Console.ReadLine());
-
-            if (novolivro.Cod != "0")
+            while (true)
             {
+                LivrosData novoLivro = new();
+
+                Console.Write("Código (0 para sair): ");
+                novoLivro.Cod = Console.ReadLine();
+
+                if (novoLivro.Cod == "0") break;
+
                 Console.Write("Id: ");
-                novolivro.Id = Convert.ToInt32(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out int id) || id <= 0)
+                {
+                    Console.WriteLine("Id inválido!");
+                    continue;
+                }
+                novoLivro.Id = id;
 
                 Console.Write("Título: ");
-                novolivro.Titulo = Convert.ToString(Console.ReadLine());
+                novoLivro.Titulo = Console.ReadLine();
 
                 Console.Write("Autor: ");
-                novolivro.Autor = Convert.ToString(Console.ReadLine());
+                novoLivro.Autor = Console.ReadLine();
 
                 Console.Write("Género: ");
-                novolivro.Genero = Convert.ToString(Console.ReadLine());
+                novoLivro.Genero = Console.ReadLine();
 
                 Console.Write("ISBN: ");
-                novolivro.ISBN = (int)Convert.ToInt64(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out int isbn) || isbn <= 0)
+                {
+                    Console.WriteLine("ISBN inválido!");
+                    continue;
+                }
+                novoLivro.ISBN = isbn;
 
                 Console.Write("Stock: ");
-                novolivro.Stock = Convert.ToInt32(Console.ReadLine());
+                if (!int.TryParse(Console.ReadLine(), out int stock) || stock < 0)
+                {
+                    Console.WriteLine("Stock inválido!");
+                    continue;
+                }
+                novoLivro.Stock = stock;
 
                 Console.Write("Preço: ");
-                novolivro.Preco = float.Parse(Console.ReadLine());
+                if (!float.TryParse(Console.ReadLine(), out float preco) || preco < 0)
+                {
+                    Console.WriteLine("Preço inválido!");
+                    continue;
+                }
+                novoLivro.Preco = preco;
 
-                Console.Write("Iva de 6% e 23%: ");
-                novolivro.Iva = float.Parse(Console.ReadLine());
+                Console.Write("Iva (6% ou 23%): ");
+                if (!float.TryParse(Console.ReadLine(), out float iva) || (iva != 0.06f && iva != 0.23f))
+                {
+                    Console.WriteLine("Iva inválido!");
+                    continue;
+                }
+                novoLivro.Iva = iva;
 
+                _listas.Livros.Add(novoLivro);
                 Console.WriteLine("Livro criado com sucesso!");
-
-                _listas.Livros.Add(novolivro);
             }
         }
-    }
 
-    public void AtualizarLivro()
-    {
-        while (true)
+        public void AtualizarLivro()
         {
-            var id = 0;
-
-            Console.Write("Qual é o id que deseja modificar? (0 para encerrar)");
-
-            if (int.TryParse(Console.ReadLine(), out id))
+            while (true)
             {
+                Console.Write("Qual é o id que deseja modificar? (0 para encerrar): ");
+                if (!int.TryParse(Console.ReadLine(), out int id) || id < 0)
+                {
+                    Console.WriteLine("Id inválido!");
+                    continue;
+                }
+
                 if (id == 0) break;
 
-                var Livro = _listas.Livros.Find(x => x.Id == id);
-
-                if (Livro != null)
+                var livro = _listas.Livros.Find(l => l.Id == id);
+                if (livro == null)
                 {
-                    Console.Write("Novo Código: ");
-                    Livro.Cod = Convert.ToString(Console.ReadLine());
-
-                    Console.Write("Novo Título: ");
-                    Livro.Titulo = Convert.ToString(Console.ReadLine());
-
-                    Console.Write("Novo Autor: ");
-                    Livro.Autor = Convert.ToString(Console.ReadLine());
-
-                    Console.Write("Novo Género: ");
-                    Livro.Genero = Convert.ToString(Console.ReadLine());
-
-                    Console.Write("Novo ISBN: ");
-                    Livro.ISBN = (int)Convert.ToInt64(Console.ReadLine());
-
-                    Console.Write("Novo Stock: ");
-                    Livro.Stock = Convert.ToInt32(Console.ReadLine());
-
-                    Console.Write("Novo Preço: ");
-                    Livro.Preco = float.Parse(Console.ReadLine());
-
-                    Console.Write("Novo Iva: ");
-                    Livro.Iva = float.Parse(Console.ReadLine());
+                    Console.WriteLine("Livro não encontrado!");
+                    continue;
                 }
+
+                AtualizarInformacoesLivro(livro);
+                Console.WriteLine("Livro atualizado com sucesso!");
+            }
+        }
+
+        public void RemoverLivro()
+        {
+            Console.Write("Insira o ID do livro que deseja remover: ");
+            if (!int.TryParse(Console.ReadLine(), out int idRemover))
+            {
+                Console.WriteLine("Id inválido!");
+                return;
+            }
+
+            var livro = _listas.Livros.Find(l => l.Id == idRemover);
+
+            if (livro != null)
+            {
+                _listas.Livros.Remove(livro);
+                Console.WriteLine("Livro removido com sucesso!");
             }
             else
             {
-                Console.WriteLine("ID inválido!");
+                Console.WriteLine("Livro não encontrado com esse ID.");
             }
-
         }
 
-        foreach (LivrosData l in _listas.Livros)
+        #endregion
+
+        #region Private Methods
+
+        private void AtualizarInformacoesLivro(LivrosData livro)
         {
-            Console.WriteLine("Código: " + l.Cod + " | " + "Título: " + l.Titulo + " | " + "Autor: " + l.Autor + " | "
-                                + "Género: " + l.Genero + " | " + "ISBN: " + l.ISBN + " | " + "Stock: " + l.Stock + " | " 
-                                    + "Preço: " + l.Preco + " | " + "Iva: " + l.Iva);
-        }
-    }
+            Console.Write("Novo Código: ");
+            livro.Cod = Console.ReadLine();
 
-    #endregion
+            Console.Write("Novo Título: ");
+            livro.Titulo = Console.ReadLine();
+
+            Console.Write("Novo Autor: ");
+            livro.Autor = Console.ReadLine();
+
+            Console.Write("Novo Género: ");
+            livro.Genero = Console.ReadLine();
+
+            Console.Write("Novo ISBN: ");
+            if (!int.TryParse(Console.ReadLine(), out int isbn) || isbn <= 0)
+            {
+                Console.WriteLine("ISBN inválido!");
+                return;
+            }
+            livro.ISBN = isbn;
+
+            Console.Write("Novo Stock: ");
+            if (!int.TryParse(Console.ReadLine(), out int stock) || stock < 0)
+            {
+                Console.WriteLine("Stock inválido!");
+                return;
+            }
+            livro.Stock = stock;
+
+            Console.Write("Novo Preço: ");
+            if (!float.TryParse(Console.ReadLine(), out float preco) || preco < 0)
+            {
+                Console.WriteLine("Preço inválido!");
+                return;
+            }
+            livro.Preco = preco;
+
+            Console.Write("Novo Iva (6% ou 23%): ");
+            if (!float.TryParse(Console.ReadLine(), out float iva) || (iva != 0.06f && iva != 0.23f))
+            {
+                Console.WriteLine("Iva inválido!");
+                return;
+            }
+            livro.Iva = iva;
+        }
+
+        #endregion
+    }
 }

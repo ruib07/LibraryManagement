@@ -16,7 +16,6 @@ public class LivrosData
     public float Total { get; set; }
     public float NovoTotal { get; set; }
     public float Iva { get; set; }
-    public float NovoIva { get; set; }
 
     #endregion
 

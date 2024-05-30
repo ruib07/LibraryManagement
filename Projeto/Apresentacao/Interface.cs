@@ -31,56 +31,34 @@ public class Interface
 
     #region Public Methods
 
-    public void Opcoes()
+    public void Menu()
     {
-        Console.WriteLine("----------------ESCOLHA UMA OPÇÃO-------------------");
-        Console.WriteLine();
+        Console.WriteLine("----------------ESCOLHA UMA OPÇÃO-------------------\n\n");
         Console.WriteLine("1- Criar ou Remover Utilizadores");
         Console.WriteLine("2- Criar Livro");
         Console.WriteLine("3- Atualizar Livro");
-        Console.WriteLine("4- Consultar Utilizadores");
-        Console.WriteLine("5- Consultar Livros");
-        Console.WriteLine("6- Comprar Livro");
-        Console.WriteLine("7- Vender Livro");
-        Console.WriteLine("8- Consultar Livro por Género");
-        Console.WriteLine("9- Consultar Livro por Autor");
-        Console.WriteLine("10- Consultar Livro por Stock");
-        Console.WriteLine("11- Consultar Livro por Código");
-        Console.WriteLine("12- Consultar Livro por Título");
-        Console.WriteLine("13- Consultar Total Livros Vendidos e Receita");
-        Console.WriteLine("14- Mudar de Utilizador");
-        Console.WriteLine("15- Sair");
-        Console.WriteLine();
+        Console.WriteLine("4- Remover Livro");
+        Console.WriteLine("5- Consultar Utilizadores");
+        Console.WriteLine("6- Consultar Livros");
+        Console.WriteLine("7- Comprar Livro");
+        Console.WriteLine("8- Vender Livro");
+        Console.WriteLine("9- Consultar Livro por Género");
+        Console.WriteLine("10- Consultar Livro por Autor");
+        Console.WriteLine("11- Consultar Livro por Stock");
+        Console.WriteLine("12- Consultar Livro por Código");
+        Console.WriteLine("13- Consultar Livro por Título");
+        Console.WriteLine("14- Consultar Total Livros Vendidos e Receita");
+        Console.WriteLine("15- Mudar de Utilizador");
+        Console.WriteLine("16- Sair\n\n");
         Console.WriteLine("----------------------------------------------------");
     }
 
-    public void MudarUtilizador()
-    {
-        MostrarOpcoes();
-    }
+    public void IniciarInterface() => MostrarOpcoes();
 
     public void MostrarOpcoes()
     {
         AutenticarUtilizador();
-
-        Dictionary<int, Action> opcoes = new Dictionary<int, Action>
-        {
-            { 1, Opcao1 },
-            { 2, Opcao2 },
-            { 3, _gestaoLivros.AtualizarLivro },
-            { 4, _consultas.ConsultarUtilizadores },
-            { 5, _consultas.ConsultarLivros },
-            { 6, Opcao6 },
-            { 7, _compraVendaLivros.VenderLivro },
-            { 8, _consultas.ConsultarLivrosGenero },
-            { 9, _consultas.ConsultarLivroAutor },
-            { 10, _consultas.ConsultarStock },
-            { 11, _consultas.ConsultarLivrosCod },
-            { 12, _consultas.ConsultarLivrosTitulo },
-            { 13, _consultas.ConsultarTotalVendidoEReceita },
-            { 14, MudarUtilizador },
-            { 15, () => { } }
-        };
+        var opcoes = CriarMapaOpcoes();
 
         int opcao;
 
@@ -88,14 +66,13 @@ public class Interface
         {
             try
             {
-                Opcoes();
-
+                Menu();
                 Console.Write("\n\nEscolha uma opção: ");
                 opcao = Convert.ToInt32(Console.ReadLine());
 
-                if (opcoes.ContainsKey(opcao))
+                if (opcoes.TryGetValue(opcao, out var acao))
                 {
-                    opcoes[opcao].Invoke();
+                    acao.Invoke();
                 }
                 else
                 {
@@ -107,8 +84,7 @@ public class Interface
                 Console.WriteLine("Por favor insira apenas números!");
                 opcao = 0;
             }
-        }
-        while (opcao != 15);
+        } while (opcao != 16);
 
         Console.Clear();
         Console.WriteLine("Tenha um bom dia!");
@@ -118,38 +94,60 @@ public class Interface
 
     #region Private Methods
 
+    private Dictionary<int, Action> CriarMapaOpcoes()
+    {
+        return new Dictionary<int, Action>
+        {
+            { 1, () => VerificarPermissao("Gerente", Opcao1) },
+            { 2, () => VerificarPermissao("Repositor", Opcao2) },
+            { 3, _gestaoLivros.AtualizarLivro },
+            { 4, () => VerificarPermissao("Repositor", Opcao4) },
+            { 5, _consultas.ConsultarUtilizadores },
+            { 6, _consultas.ConsultarLivros },
+            { 7, () => VerificarPermissao(new[] {"Caixa", "Gerente"}, Opcao6) },
+            { 8, _compraVendaLivros.VenderLivro },
+            { 9, _consultas.ConsultarLivrosGenero },
+            { 10, _consultas.ConsultarLivroAutor },
+            { 11, _consultas.ConsultarStock },
+            { 12, _consultas.ConsultarLivrosCod },
+            { 13, _consultas.ConsultarLivrosTitulo },
+            { 14, _consultas.ConsultarTotalVendidoEReceita },
+            { 15, IniciarInterface },
+            { 16, () => { } }
+        };
+    }
+
     private void AutenticarUtilizador()
     {
         do
         {
             Console.WriteLine("------------------------LOGIN--------------------------");
-
-            Console.WriteLine("Admin: ");
+            Console.Write("Admin: ");
             _utilizadores.Admin = Console.ReadLine();
-
-            Console.WriteLine("Password: ");
+            Console.Write("Password: ");
             _utilizadores.Password = ReadPassword();
 
             if (!ValidarCredenciais(_utilizadores.Admin, _utilizadores.Password))
-            {
                 Console.WriteLine("Admin ou Password incorretos. Tente novamente.");
-            }
-        }
-        while (!ValidarCredenciais(_utilizadores.Admin, _utilizadores.Password));
+        } while (!ValidarCredenciais(_utilizadores.Admin, _utilizadores.Password));
     }
 
     private bool ValidarCredenciais(string admin, string password)
     {
-        return (admin == "Gerente" && password == "gerente123") ||
-               (admin == "Repositor" && password == "repositor123") ||
-               (admin == "Caixa" && password == "caixa123");
+        return (admin, password) switch
+        {
+            ("Gerente", "gerente123") => true,
+            ("Repositor", "repositor123") => true,
+            ("Caixa", "caixa123") => true,
+            _ => false
+        };
     }
 
-    private void Opcao1()
+    private void VerificarPermissao(string role, Action action)
     {
-        if (_utilizadores.Admin == "Gerente" && _utilizadores.Password == "gerente123")
+        if (_utilizadores.Admin == role)
         {
-            _gestaoUtilizadores.CriarRemoverUtilizador();
+            action.Invoke();
         }
         else
         {
@@ -157,11 +155,11 @@ public class Interface
         }
     }
 
-    private void Opcao2()
+    private void VerificarPermissao(string[] roles, Action action)
     {
-        if (_utilizadores.Admin == "Repositor" && _utilizadores.Password == "repositor123")
+        if (roles.Contains(_utilizadores.Admin))
         {
-            _gestaoLivros.CriarLivro();
+            action.Invoke();
         }
         else
         {
@@ -169,28 +167,21 @@ public class Interface
         }
     }
 
-    private void Opcao6()
-    {
-        if (_utilizadores.Admin == "Caixa" && _utilizadores.Password == "caixa123" ||
-            _utilizadores.Admin == "Gerente" && _utilizadores.Password == "gerente123")
-        {
-            _compraVendaLivros.ComprarLivro();
-        }
-        else
-        {
-            Console.WriteLine("Acesso negado!");
-        }
-    }
+    private void Opcao1() => _gestaoUtilizadores.CriarRemoverUtilizador();
+
+    private void Opcao2() => _gestaoLivros.CriarLivro();
+    private void Opcao4() => _gestaoLivros.RemoverLivro();
+
+    private void Opcao6() => _compraVendaLivros.ComprarLivro();
 
     private string ReadPassword()
     {
-        string password = string.Empty;
+        var password = string.Empty;
         ConsoleKey key;
 
         do
         {
             var keyInfo = Console.ReadKey(intercept: true);
-
             key = keyInfo.Key;
 
             if (key == ConsoleKey.Backspace && password.Length > 0)
@@ -203,13 +194,11 @@ public class Interface
                 Console.Write("*");
                 password += keyInfo.KeyChar;
             }
-        }
-        while (key != ConsoleKey.Enter);
+        } while (key != ConsoleKey.Enter);
 
         Console.WriteLine();
         return password;
     }
-
 
     #endregion
 }

@@ -6,16 +6,13 @@ public class CompraVendaLivros
 {
     #region Private Properties
 
-    private ListasLivrosUsers _listas;
+    private readonly ListasLivrosUsers _listas;
 
     #endregion
 
     #region Constructors
 
-    public CompraVendaLivros(ListasLivrosUsers listas)
-    {
-        _listas = listas;
-    }
+    public CompraVendaLivros(ListasLivrosUsers listas) => _listas = listas;
 
     #endregion
 
@@ -26,47 +23,47 @@ public class CompraVendaLivros
         while (true)
         {
             Console.Write("Insira o Id do livro que deseja comprar (0 para sair): ");
-            int id = Convert.ToInt32(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int id) || id < 0)
+            {
+                Console.WriteLine("Id inválido!");
+                continue;
+            }
 
             if (id == 0) break;
 
             var livro = _listas.Livros.Find(l => l.Id == id);
-
             if (livro == null)
             {
                 Console.WriteLine("Id inválido!");
-
                 continue;
             }
 
             Console.Write("Quantidade que deseja comprar: ");
-            livro.Quantidade = Convert.ToInt32(Console.ReadLine());
-
-            if (livro.Quantidade >= 0 && livro.Quantidade <= livro.Stock)
+            if (!int.TryParse(Console.ReadLine(), out int quantidade) || quantidade < 0)
             {
-                livro.Stock -= livro.Quantidade;
-
-                livro.Total = livro.Quantidade * livro.Preco;
-
-                Console.WriteLine($"Valor total: {Math.Round(livro.Total, 2)}");
-
-                if (livro.Total >= 50)
-                {
-                    livro.NovoIva = (float)(livro.Total * 0.10);
-                    Console.WriteLine($"Desconto de 10%: {Math.Round(livro.NovoIva, 2)}");
-
-                    livro.NovoTotal = (float)(livro.Total - livro.NovoIva);
-                    Console.WriteLine($"Total a pagar: {Math.Round(livro.NovoTotal, 2)}");
-                }
-
-                Console.WriteLine("Código: " + livro.Cod + " | " + "Título: " + livro.Titulo + " | " + "Autor: " + livro.Autor + " | "
-                                    + "Género: " + livro.Genero + " | " + "ISBN: " + livro.ISBN + " | " + "Stock: " + livro.Stock + " | " 
-                                        + "Preço: " + livro.Preco + " | " + "Iva: " + livro.Iva);
+                Console.WriteLine("Quantidade inválida!");
+                continue;
             }
-            else
+
+            if (quantidade > livro.Stock)
             {
                 Console.WriteLine("Quantidade não disponível!");
+                continue;
             }
+
+            livro.Stock -= quantidade;
+            float total = quantidade * livro.Preco;
+            Console.WriteLine($"Valor total: {Math.Round(total, 2)}");
+
+            if (total >= 50)
+            {
+                float desconto = total * 0.10f;
+                Console.WriteLine($"Desconto de 10%: {Math.Round(desconto, 2)}");
+                total -= desconto;
+            }
+
+            Console.WriteLine($"Total a pagar: {Math.Round(total, 2)}");
+            ExibirInformacoesLivro(livro);
         }
     }
 
@@ -75,7 +72,11 @@ public class CompraVendaLivros
         while (true)
         {
             Console.Write("Insira o Id do livro que deseja vender (0 para sair): ");
-            int id = Convert.ToInt32(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int id) || id < 0)
+            {
+                Console.WriteLine("Id inválido!");
+                continue;
+            }
 
             if (id == 0) break;
 
@@ -84,19 +85,30 @@ public class CompraVendaLivros
             if (livro == null)
             {
                 Console.WriteLine("Id inválido!");
-
                 continue;
             }
 
             Console.Write("Quantidade que deseja vender: ");
-            livro.Quantidade = Convert.ToInt32(Console.ReadLine());
+            if (!int.TryParse(Console.ReadLine(), out int quantidade) || quantidade < 0)
+            {
+                Console.WriteLine("Quantidade inválida!");
+                continue;
+            }
 
-            livro.Stock += livro.Quantidade;
-
-            Console.WriteLine("Código: " + livro.Cod + " | " + "Título: " + livro.Titulo + " | " + "Autor: " + livro.Autor + " | "
-                                + "Género: " + livro.Genero + " | " + "ISBN: " + livro.ISBN + " | " + "Stock: " + livro.Stock + " | " 
-                                    + "Preço: " + livro.Preco + " | " + "Iva: " + livro.Iva);
+            livro.Stock += quantidade;
+            ExibirInformacoesLivro(livro);
         }
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private void ExibirInformacoesLivro(LivrosData livro)
+    {
+        Console.WriteLine("Código: " + livro.Cod + " | " + "Título: " + livro.Titulo + " | " + "Autor: " + livro.Autor + " | "
+                                + "Género: " + livro.Genero + " | " + "ISBN: " + livro.ISBN + " | " + "Stock: " + livro.Stock + " | "
+                                    + "Preço: " + livro.Preco + " | " + "Iva: " + livro.Iva);
     }
 
     #endregion

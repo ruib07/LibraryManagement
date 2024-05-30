@@ -2,209 +2,150 @@
 using Projeto.Livros;
 using Projeto.Utilizadores;
 
-namespace Projeto.Consultar;
-
-public class Consultas
+namespace Projeto.Consultar
 {
-    #region Private Properties
-
-    private ListasLivrosUsers _listas;
-
-    #endregion
-
-    #region Constructor
-
-    public Consultas(ListasLivrosUsers listas)
+    public class Consultas
     {
-        _listas = listas;
-    }
+        #region Private Properties
 
-    #endregion
+        private readonly ListasLivrosUsers _listas;
 
-    #region Public Methods
+        #endregion
 
-    public void ConsultarUtilizadores()
-    {
-        foreach (UtilizadoresData u in _listas.Utilizadores)
+        #region Constructor
+
+        public Consultas(ListasLivrosUsers listas) => _listas = listas;
+
+        #endregion
+
+        #region Public Methods
+
+        public void ConsultarUtilizadores()
         {
-            Console.WriteLine($"Id: " + u.IdUser + "| " + "Admin: " + u.Admin + " | " + "Password: " + u.Password);
-        }
-    }
-
-    public void ConsultarLivros()
-    {
-        foreach (LivrosData l in _listas.Livros)
-        {
-            Console.WriteLine("Código: " + l.Cod + " | " + "Título: " + l.Titulo + " | " + "Autor: " + l.Autor + " | "
-                                + "Género: " + l.Genero + " | " + "ISBN: " + l.ISBN + " | " + "Stock: " + l.Stock + " | " 
-                                    + "Preço: " + l.Preco + " | " + "Iva: " + l.Iva);
-        }
-    }
-
-    public void ConsultarLivrosGenero()
-    {
-        while (true)
-        {
-            var genero = "";
-
-            Console.Write("Insira o género que deseja consultar: (Sair para encerrar)");
-            genero = Convert.ToString(Console.ReadLine());
-
-            if (genero == "Sair") break;
-
-            var Livro = _listas.Livros.Find(x => x.Genero == genero);
-
-            if (Livro != null)
+            foreach (var u in _listas.Utilizadores)
             {
-                Console.WriteLine("Código: " + Livro.Cod + " | " + "Título: " + Livro.Titulo + " | " + "Autor: " + Livro.Autor + " | "
-                                    + "Género: " + Livro.Genero + " | " + "ISBN: " + Livro.ISBN + " | " + "Stock: " + Livro.Stock + " | " 
-                                        + "Preço: " + Livro.Preco + " | " + "Iva: " + Livro.Iva);
-            }
-            else
-            {
-                Console.WriteLine("Género inválido. Tente novamente!");
-            }
-        }
-    }
-
-    public void ConsultarLivroAutor()
-    {
-        while (true)
-        {
-            var autor = "";
-
-            Console.Write("Insira o autor que deseja consultar: (Sair para encerrar)");
-            autor = Convert.ToString(Console.ReadLine());
-
-            if (autor == "Sair") break;
-
-            var Livro = _listas.Livros.Find(x => x.Autor == autor);
-
-            if (Livro != null)
-            {
-                Console.WriteLine("Código: " + Livro.Cod + " | " + "Título: " + Livro.Titulo + " | " + "Autor: " + Livro.Autor + " | "
-                                    + "Género: " + Livro.Genero + " | " + "ISBN: " + Livro.ISBN + " | " + "Stock: " + Livro.Stock + " | " 
-                                        + "Preço: " + Livro.Preco + " | " + "Iva: " + Livro.Iva);
-            }
-            else
-            {
-                Console.WriteLine("Autor inválido. Tente novamente!");
+                Console.WriteLine($"Id: {u.IdUser} | Admin: {u.Admin} | Password: {u.Password}");
             }
         }
 
-    }
-
-    public void ConsultarStock()
-    {
-        while (true)
+        public void ConsultarLivros()
         {
-            var id = 0;
-
-            Console.Write("Qual é o id do livro que deseja consultar o stock? (0 para encerrar)");
-            id = Convert.ToInt32(Console.ReadLine());
-
-            if (id == 0) break;
-
-            var Livro = _listas.Livros.Find(x => x.Id == id);
-
-            if (Livro != null)
+            foreach (var l in _listas.Livros)
             {
-                Console.WriteLine("Título: " + Livro.Titulo + " | " + "Stock: " + Livro.Stock);
-            }
-            else
-            {
-                Console.WriteLine("Id inválido. Tente novamente!");
+                ExibirDetalhesLivro(l);
             }
         }
-    }
 
-    public void ConsultarLivrosCod()
-    {
-        while (true)
+        public void ConsultarLivrosGenero() => ConsultarLivroPorParametro("género", l => l.Genero);
+
+        public void ConsultarLivroAutor() => ConsultarLivroPorParametro("autor", l => l.Autor);
+
+        public void ConsultarStock()
         {
-            var cod = "";
-
-            Console.Write("Insira o código do livro que deseja consultar: (Sair para encerrar)");
-            cod = Convert.ToString(Console.ReadLine());
-
-            if (cod == "Sair") break;
-
-            var Livro = _listas.Livros.Find(x => x.Cod == cod);
-
-            if (Livro != null)
+            while (true)
             {
-                Console.WriteLine("Código: " + Livro.Cod + " | " + "Título: " + Livro.Titulo + " | " + "Autor: " + Livro.Autor + " | "
-                                    + "Género: " + Livro.Genero + " | " + "ISBN: " + Livro.ISBN + " | " + "Stock: " + Livro.Stock + " | " 
-                                        + "Preço: " + Livro.Preco + " | " + "Iva: " + Livro.Iva);
-            }
-            else
-            {
-                Console.WriteLine("Código inválido. Tente novamente!");
-            }
-        }
-    }
+                int id = ObterEntradaInt("Qual é o id do livro que deseja consultar o stock? (0 para encerrar)");
 
-    public void ConsultarLivrosTitulo()
-    {
-        while (true)
-        {
-            var titulo = "";
+                if (id == 0) break;
 
-            Console.Write("Insira o título do livro que deseja consultar: (Sair para encerrar)");
-            titulo = Convert.ToString(Console.ReadLine());
-
-            if (titulo == "Sair") break;
-
-            var Livro = _listas.Livros.Find(x => x.Titulo == titulo);
-
-            if (Livro != null)
-            {
-                Console.WriteLine("Código: " + Livro.Cod + " | " + "Título: " + Livro.Titulo + " | " + "Autor: " + Livro.Autor + " | "
-                                    + "Género: " + Livro.Genero + " | " + "ISBN: " + Livro.ISBN + " | " + "Stock: " + Livro.Stock + " | " 
-                                        + "Preço: " + Livro.Preco + " | " + "Iva: " + Livro.Iva);
-            }
-            else
-            {
-                Console.WriteLine("Título inválido. Tente novamente!");
-            }
-        }
-    }
-
-    public void ConsultarTotalVendidoEReceita()
-    {
-        while (true)
-        {
-            int id = 0;
-
-            Console.Write("Insira o id que deseja consultar o total vendido e a sua receita: (0 para encerrar)");
-            id = Convert.ToInt32(Console.ReadLine());
-
-            if (id == 0) break;
-
-            var Livro = _listas.Livros.Find(x => x.Id == id);
-
-            if (Livro != null)
-            {
-                int totalLivrosVendidos = 0;
-
-                totalLivrosVendidos += Livro.Quantidade;
-
-                float TotalReceita = (float)Math.Round(Livro.Total, 2);
-
-                if (Livro.Total >= 50)
+                var livro = _listas.Livros.Find(x => x.Id == id);
+                if (livro != null)
                 {
-                    TotalReceita = (float)Math.Round(Livro.NovoTotal, 2);
+                    Console.WriteLine($"Título: {livro.Titulo} | Stock: {livro.Stock}");
                 }
-
-                Console.WriteLine("Total de livros vendidos: " + totalLivrosVendidos);
-                Console.WriteLine("Total de receita: " + TotalReceita);
-            }
-            else
-            {
-                Console.WriteLine("Id inválido. Tente novamente!");
+                else
+                {
+                    Console.WriteLine("Id inválido. Tente novamente!");
+                }
             }
         }
+
+        public void ConsultarLivrosCod() => ConsultarLivroPorParametro("código", l => l.Cod);
+
+        public void ConsultarLivrosTitulo() => ConsultarLivroPorParametro("título", l => l.Titulo);
+
+        public void ConsultarTotalVendidoEReceita()
+        {
+            while (true)
+            {
+                int id = ObterEntradaInt("Insira o id que deseja consultar o total vendido e a sua receita: (0 para encerrar)");
+
+                if (id == 0) break;
+
+                var livro = _listas.Livros.Find(x => x.Id == id);
+                if (livro != null)
+                {
+                    int totalLivrosVendidos = livro.Quantidade;
+                    float totalReceita = livro.Total >= 50 ? livro.NovoTotal : livro.Total;
+
+                    Console.WriteLine($"Total de livros vendidos: {totalLivrosVendidos}");
+                    Console.WriteLine($"Total de receita: {totalReceita:F2}");
+                }
+                else
+                {
+                    Console.WriteLine("Id inválido. Tente novamente!");
+                }
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void ConsultarLivroPorParametro(string parametro, Func<LivrosData, string> seletor)
+        {
+            while (true)
+            {
+                Console.Write($"Insira o {parametro} do livro que deseja consultar: (Sair para encerrar)");
+                string entrada = Console.ReadLine();
+
+                if (entrada.Equals("Sair", StringComparison.OrdinalIgnoreCase)) break;
+
+                var livro = _listas.Livros.Find(l => seletor(l).Equals(entrada, StringComparison.OrdinalIgnoreCase));
+                if (livro != null)
+                {
+                    ExibirDetalhesLivro(livro);
+                }
+                else
+                {
+                    Console.WriteLine($"{parametro.Capitalize()} inválido. Tente novamente!");
+                }
+            }
+        }
+
+        private static int ObterEntradaInt(string mensagem)
+        {
+            while (true)
+            {
+                Console.Write(mensagem);
+                if (int.TryParse(Console.ReadLine(), out int resultado))
+                {
+                    return resultado;
+                }
+                else
+                {
+                    Console.WriteLine("Entrada inválida. Por favor, insira um número inteiro.");
+                }
+            }
+        }
+
+        private static void ExibirDetalhesLivro(LivrosData livro)
+        {
+            Console.WriteLine($"Código: {livro.Cod} | Título: {livro.Titulo} | Autor: {livro.Autor} | " +
+                                $"Género: {livro.Genero} | ISBN: {livro.ISBN} | Stock: {livro.Stock} | " +
+                                    $"Preço: {livro.Preco} | Iva: {livro.Iva}");
+        }
+
+        #endregion
     }
 
-    #endregion
+    public static class StringExtensions
+    {
+        public static string Capitalize(this string input)
+        {
+            if (string.IsNullOrEmpty(input)) return input;
+
+            return char.ToUpper(input[0]) + input.Substring(1).ToLower();
+        }
+    }
 }

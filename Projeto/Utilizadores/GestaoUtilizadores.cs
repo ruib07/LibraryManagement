@@ -1,81 +1,105 @@
 ﻿using Projeto.Listas;
+using System;
 
-namespace Projeto.Utilizadores;
-
-public class GestaoUtilizadores
+namespace Projeto.Utilizadores
 {
-    #region Public Properties
-
-    public string Opcao { get; set; }
-
-    #endregion
-
-    #region Private Properties
-
-    private ListasLivrosUsers _listas;
-
-    #endregion
-
-    #region Constructor
-
-    public GestaoUtilizadores(ListasLivrosUsers listas)
+    public class GestaoUtilizadores
     {
-        _listas = listas;
-    }
+        #region Public Properties
 
-    #endregion
+        public string Opcao { get; set; }
 
-    #region Public Methods
+        #endregion
 
-    public void CriarRemoverUtilizador()
-    {
-        Console.WriteLine("Escolha uma opção (Criar ou Remover e Sair para encerrar): ");
-        Opcao = Convert.ToString(Console.ReadLine());
+        #region Private Properties
 
-        while (true)
+        private readonly ListasLivrosUsers _listas;
+
+        #endregion
+
+        #region Constructor
+
+        public GestaoUtilizadores(ListasLivrosUsers listas) => _listas = listas;
+
+        #endregion
+
+        #region Public Methods
+
+        public void CriarRemoverUtilizador()
         {
-            if (Opcao == "Criar")
+            while (true)
             {
-                UtilizadoresData novoutilizador = new UtilizadoresData();
+                Console.WriteLine("Escolha uma opção (Criar, Remover, Sair): ");
+                Opcao = Console.ReadLine();
 
-                Console.Write("Novo Id: ");
-                novoutilizador.IdUser = Convert.ToInt32(Console.ReadLine());
-
-                if (novoutilizador.IdUser == 0) return;
-
-                Console.Write("Novo Admin: ");
-                novoutilizador.Admin = Convert.ToString(Console.ReadLine());
-
-                Console.Write("Nova Password: ");
-                novoutilizador.Password = Convert.ToString(Console.ReadLine());
-
-                Console.WriteLine("Utilizador criado com sucesso!");
-
-                Console.WriteLine("Admin: " + novoutilizador.Admin + " | " + "Password: " + novoutilizador.Password);
-
-                _listas.Utilizadores.Add(novoutilizador);
-            }
-            else if (Opcao == "Remover")
-            {
-                Console.WriteLine("Insira o ID do utilizador que deseja remover: ");
-                int idRemover = Convert.ToInt32(Console.ReadLine());
-
-                for (int i = 0; i < _listas.Utilizadores.Count; i++)
+                switch (Opcao)
                 {
-                    if (_listas.Utilizadores[i].IdUser == idRemover)
-                    {
-                        _listas.Utilizadores.RemoveAt(i);
+                    case "Criar":
+                        CriarUtilizador();
+                        break;
 
-                        Console.WriteLine("Utilizador removido com sucesso!");
+                    case "Remover":
+                        RemoverUtilizador();
+                        break;
+
+                    case "Sair":
                         return;
-                    }
-                }
 
+                    default:
+                        Console.WriteLine("Opção inválida. Tente novamente.");
+                        break;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private void CriarUtilizador()
+        {
+            UtilizadoresData novoUtilizador = new();
+
+            Console.Write("Novo Id (0 para cancelar): ");
+            if (!int.TryParse(Console.ReadLine(), out int id) || id <= 0)
+            {
+                Console.WriteLine("Id inválido!");
+                return;
+            }
+            novoUtilizador.IdUser = id;
+
+            Console.Write("Novo Admin: ");
+            novoUtilizador.Admin = Console.ReadLine();
+
+            Console.Write("Nova Password: ");
+            novoUtilizador.Password = Console.ReadLine();
+
+            _listas.Utilizadores.Add(novoUtilizador);
+            Console.WriteLine("Utilizador criado com sucesso!");
+            Console.WriteLine($"Admin: {novoUtilizador.Admin} | Password: {novoUtilizador.Password}");
+        }
+
+        private void RemoverUtilizador()
+        {
+            Console.Write("Insira o ID do utilizador que deseja remover: ");
+            if (!int.TryParse(Console.ReadLine(), out int idRemover))
+            {
+                Console.WriteLine("Id inválido!");
+                return;
+            }
+
+            var utilizador = _listas.Utilizadores.Find(u => u.IdUser == idRemover);
+            if (utilizador != null)
+            {
+                _listas.Utilizadores.Remove(utilizador);
+                Console.WriteLine("Utilizador removido com sucesso!");
+            }
+            else
+            {
                 Console.WriteLine("Utilizador não encontrado com esse ID.");
             }
-            else if (Opcao == "Sair") break;
         }
-    }
 
-    #endregion
+        #endregion
+    }
 }
