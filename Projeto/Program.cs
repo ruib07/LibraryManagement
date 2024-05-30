@@ -1,40 +1,40 @@
-﻿using Projeto.Consultar;
-using Projeto.Livros;
-using Projeto.Apresentacao;
-using Projeto.Utilizadores;
-using Projeto.Listas;
+﻿using Project.Consult;
+using Project.Books;
+using Project.Presentation;
+using Project.Users;
+using Project.Lists;
 
 #region Data
 
-UtilizadoresData ud = new UtilizadoresData();
-LivrosData ld = new LivrosData();
+UsersData ud = new UsersData();
+BooksData bd = new BooksData();
 
 #endregion
 
 #region Lists
 
-ListasLivrosUsers l = new ListasLivrosUsers();
+BooksUsersLists bul = new BooksUsersLists();
 
 #endregion
 
 #region Management
 
-GestaoUtilizadores gu = new GestaoUtilizadores(l);
-GestaoLivros gl = new GestaoLivros(l);
+UsersManagement um = new UsersManagement(bul);
+BooksManagement bm = new BooksManagement(bul);
 
 #endregion
 
 #region Buy/Sell or Consult
 
-CompraVendaLivros cvl = new CompraVendaLivros(l);
-Consultas c = new Consultas(l);
+BuySellBooks bsb = new BuySellBooks(bul);
+Queries q = new Queries(bul);
 
 #endregion
 
 #region UI
 
-Interface i = new Interface(ud, c, gu, gl, cvl);
-i.MostrarOpcoes();
+Interface i = new Interface(ud, q, um, bm, bsb);
+i.ShowOptions();
 
 #endregion
 

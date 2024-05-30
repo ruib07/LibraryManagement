@@ -1,10 +1,10 @@
-﻿namespace Projeto.Utilizadores;
+﻿namespace Project.Users;
 
-public class UtilizadoresData
+public class UsersData
 {
     #region Public Properties
 
-    public int IdUser { get; set; }
+    public int UserId { get; set; }
     public string Admin { get; set; }
     public string Password { get; set; }
 
@@ -12,11 +12,11 @@ public class UtilizadoresData
 
     #region Constructors
 
-    public UtilizadoresData() { }
+    public UsersData() { }
 
-    public UtilizadoresData(int idUser, string admin, string password)
+    public UsersData(int userId, string admin, string password)
     {
-        IdUser = idUser;
+        UserId = userId;
         Admin = admin;
         Password = password;
     }
